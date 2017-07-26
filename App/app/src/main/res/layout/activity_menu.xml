@@ -4,74 +4,103 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mpf.mypersonalfinances.features.MenuActivity">
+    tools:context="com.mpf.mypersonalfinances.features.MenuActivity"
+    tools:layout_editor_absoluteY="81dp"
+    tools:layout_editor_absoluteX="0dp">
 
     <Button
         android:id="@+id/finances_menu_button"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_margin="5dp"
+        android:layout_height="0dp"
         android:background="@android:color/holo_blue_dark"
         android:text="Finances"
         android:textAlignment="center"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toBottomOf="@+id/quick_add_button"
+        android:layout_marginEnd="58dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/quick_add_button"
-        app:layout_constraintBottom_toTopOf="@+id/recommendations_menu_button"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/quick_add_button" />
 
     <Button
         android:id="@+id/quick_add_button"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="5dp"
         android:background="@android:color/holo_green_light"
         android:text="+"
         android:textAlignment="center"
         android:textSize="40dp"
-        app:layout_constraintBottom_toTopOf="@+id/investments_menu_button"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/finances_menu_button"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        android:layout_marginStart="63dp"
+        android:layout_marginEnd="63dp"
+        android:layout_marginTop="46dp"
+        app:layout_constraintTop_toBottomOf="@+id/welcome_view"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <Button
         android:id="@+id/investments_menu_button"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="5dp"
         android:background="@android:color/holo_orange_dark"
         android:text="Investments"
         android:textAlignment="center"
-        app:layout_constraintRight_toLeftOf="@+id/recommendations_menu_button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/logout_menu_button"
-        app:layout_constraintTop_toBottomOf="@+id/quick_add_button" />
+        tools:layout_constraintBottom_creator="1"
+        android:layout_marginStart="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="145dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <Button
         android:id="@+id/recommendations_menu_button"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_marginEnd="59dp"
         android:background="@android:color/holo_purple"
         android:text="Recommendations"
         android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/investments_menu_button"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/investments_menu_button"
-        app:layout_constraintBottom_toTopOf="@+id/logout_menu_button"
-        app:layout_constraintTop_toBottomOf="@+id/finances_menu_button" />
+        app:layout_constraintTop_toTopOf="@+id/investments_menu_button"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1" />
 
     <Button
         android:id="@+id/logout_menu_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Log Out"
+        tools:layout_constraintTop_creator="1"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="27dp"
+        app:layout_constraintTop_toBottomOf="@+id/recommendations_menu_button"
         tools:layout_constraintLeft_creator="1"
-        android:layout_marginBottom="70dp"
         app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/welcome_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Loading..."
+        android:textAlignment="center"
+        android:textSize="24dp"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="27dp"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

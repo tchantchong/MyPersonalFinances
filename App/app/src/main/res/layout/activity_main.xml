@@ -7,20 +7,17 @@
     tools:context="com.mpf.mypersonalfinances.MainActivity">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="Loading..."
+        android:textSize="24dp"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/logout_menu_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="LogOut"
-        tools:layout_editor_absoluteX="26dp"
-        tools:layout_editor_absoluteY="16dp" />
-
 </android.support.constraint.ConstraintLayout>
