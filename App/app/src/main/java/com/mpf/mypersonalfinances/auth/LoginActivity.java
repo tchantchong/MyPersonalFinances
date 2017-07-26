@@ -1,11 +1,10 @@
-package com.mpf.mypersonalfinances;
+package com.mpf.mypersonalfinances.auth;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,8 +14,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-
-import java.lang.reflect.Field;
+import com.mpf.mypersonalfinances.features.MenuActivity;
+import com.mpf.mypersonalfinances.R;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -28,7 +27,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button _signInButton;
     private Button _registerButton;
     private FirebaseAuth _auth;
-    private FirebaseAuth.AuthStateListener _authStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         _emailField = (EditText) findViewById(R.id.email_field);
         _passwordField = (EditText) findViewById(R.id.password_field);
         _signInButton = (Button) findViewById(R.id.sign_in_button);
-        _registerButton = (Button) findViewById(R.id.register_button);
+        _registerButton = (Button) findViewById(R.id.go_register_button);
 
         _auth = FirebaseAuth.getInstance();
 
@@ -46,6 +44,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startSignIn();
+            }
+        });
+        _registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             }
         });
     }
@@ -60,12 +64,13 @@ public class LoginActivity extends AppCompatActivity {
             _auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (!task.isSuccessful()) {
-                        Toast.makeText(LoginActivity.this, "Sign In Problem. Make sure you entered correct e-mail and password", Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        Toast.makeText(LoginActivity.this, "Sign In Succesful", Toast.LENGTH_LONG).show();
-                    }
+                if (!task.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Sign In Problem. Make sure you entered correct e-mail and password", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(LoginActivity.this, "Sign In Succesful", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(LoginActivity.this, MenuActivity.class));
+                }
                 }
             });
         }
