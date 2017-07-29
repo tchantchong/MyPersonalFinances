@@ -1,10 +1,7 @@
 package com.mpf.mypersonalfinances.auth;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,11 +14,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.mpf.mypersonalfinances.MainActivity;
 import com.mpf.mypersonalfinances.R;
+import com.mpf.mypersonalfinances.features.MenuActivity;
+import com.mpf.mypersonalfinances.models.ExpenseCategories;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -33,10 +30,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText _passwordField;
     private EditText _confirmPasswordField;
     private Button _registerButton;
-    private ProgressDialog _progress;
 
     private FirebaseAuth _auth;
-    private FirebaseAuth.AuthStateListener _authStateListener;
     private DatabaseReference _database;
 
     @Override
@@ -48,27 +43,18 @@ public class RegisterActivity extends AppCompatActivity {
         _passwordField = (EditText) findViewById(R.id.register_password_field);
         _confirmPasswordField= (EditText) findViewById(R.id.register_confirm_password_field);
         _registerButton = (Button) findViewById(R.id.register_button);
-        _progress = new ProgressDialog(this);
-
         _auth = FirebaseAuth.getInstance();
         _database = FirebaseDatabase.getInstance().getReference().child("users");
 
         _registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RegisterUser();
+                CreateUser();
             }
         });
     }
 
-    private boolean IsFieldsFilled() {
-        return !TextUtils.isEmpty(_nameField.getText()) &&
-               !TextUtils.isEmpty(_emailField.getText()) &&
-               !TextUtils.isEmpty(_passwordField.getText()) &&
-               !TextUtils.isEmpty(_confirmPasswordField.getText());
-    }
-
-    private void RegisterUser() {
+    private void CreateUser() {
         if (!IsFieldsFilled()) {
             Toast.makeText(RegisterActivity.this, "All fields must be filled", Toast.LENGTH_LONG).show();
             return;
@@ -77,23 +63,49 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(RegisterActivity.this, "Both passwords must be the same", Toast.LENGTH_LONG).show();
             return;
         }
-        Toast.makeText(RegisterActivity.this, "Registering...", Toast.LENGTH_LONG).show();
+        Toast.makeText(RegisterActivity.this, "Creating new user...", Toast.LENGTH_LONG).show();
         _auth.createUserWithEmailAndPassword(_emailField.getText().toString().trim(), _passwordField.getText().toString().trim())
             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(!task.isSuccessful()) {
-                        Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        String userId = _auth.getCurrentUser().getUid();
-                        DatabaseReference currentUserDataBase = _database.child(userId);
-                        currentUserDataBase.child("name").setValue(_nameField.getText().toString().trim());
-                        Toast.makeText(RegisterActivity.this, String.format("Registration Completed. Logged in as %s",
-                                _nameField.getText().toString().trim()),Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                    }
+                if(!task.isSuccessful()) {
+                    Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                }
+                else {
+                    String userId = _auth.getCurrentUser().getUid();
+                    DatabaseReference currentUserDataBase = _database.child(userId);
+                    //User Data
+                    currentUserDataBase.child("name").setValue(_nameField.getText().toString().trim());
+
+                    //Finances
+                    DatabaseReference expenseToAdd = currentUserDataBase.child("finances").child("actual").child("expenses").push();
+                    expenseToAdd.child("value").setValue(23);
+                    expenseToAdd.child("category").setValue(ExpenseCategories.Food.toString());
+                    DatabaseReference incomeToAdd = currentUserDataBase.child("finances").child("actual").child("incomes").push();
+                    incomeToAdd.child("value").setValue(25);
+                    incomeToAdd.child("name").setValue("MorganStanley");
+                    //currentUserDataBase.child("finances").child("actual").child("expenses").push().child("name").setValue("food");
+                    //currentUserDataBase.child("finances").child("actual").child("incomes").child("income1").child("name").setValue("Morgan");
+                    //currentUserDataBase.child("finances").child("actual").child("incomes").child("income1").child("value").setValue(2000);
+                    //currentUserDataBase.child("finances").child("history");
+
+                    //Investments
+                    //currentUserDataBase.child("investments").child("history");
+                    //currentUserDataBase.child("investments").child("total").setValue(0);
+
+                    //Finally
+                    Toast.makeText(RegisterActivity.this, String.format("Registration Completed. Logged in as %s",
+                        _nameField.getText().toString().split(" ")[0].trim()),Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(RegisterActivity.this, MenuActivity.class));
+                }
                 }
             });
+    }
+
+    private boolean IsFieldsFilled() {
+        return !TextUtils.isEmpty(_nameField.getText()) &&
+               !TextUtils.isEmpty(_emailField.getText()) &&
+               !TextUtils.isEmpty(_passwordField.getText()) &&
+               !TextUtils.isEmpty(_confirmPasswordField.getText());
     }
 }
