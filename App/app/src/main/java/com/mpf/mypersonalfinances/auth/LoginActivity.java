@@ -19,25 +19,27 @@ import com.mpf.mypersonalfinances.R;
 
 public class LoginActivity extends AppCompatActivity {
 
-    //Constants
+    //Database Declarations
+    private FirebaseAuth _auth;
 
-    //Declarations
+    //UI Declarations
     private EditText _emailField;
     private EditText _passwordField;
     private Button _signInButton;
     private Button _registerButton;
-    private FirebaseAuth _auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        //UI Initialization
         _emailField = (EditText) findViewById(R.id.email_field);
         _passwordField = (EditText) findViewById(R.id.password_field);
         _signInButton = (Button) findViewById(R.id.sign_in_button);
         _registerButton = (Button) findViewById(R.id.go_register_button);
 
+        //Database Initialization
         _auth = FirebaseAuth.getInstance();
 
         _signInButton.setOnClickListener(new View.OnClickListener() {
