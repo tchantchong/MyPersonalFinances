@@ -10,18 +10,18 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.auth.LoginActivity;
+import com.mpf.mypersonalfinances.features.finances.AddExpenseActivity;
+import com.mpf.mypersonalfinances.features.finances.FinancesActivity;
 import com.mpf.mypersonalfinances.models.User;
-
-import java.util.Map;
 
 public class MenuActivity extends AppCompatActivity {
 
-    //Constants
+    //Database Declarations
+    private FirebaseAuth _auth;
 
     //Declarations
     private Button _quickAddButton;
@@ -30,13 +30,13 @@ public class MenuActivity extends AppCompatActivity {
     private Button _recommendationsButton;
     private Button _logoutButton;
     private TextView _welcomeView;
-    private FirebaseAuth _auth;
-    private DatabaseReference _database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        //UI Initialization
         _quickAddButton = (Button) findViewById(R.id.quick_add_button);
         _financesButton= (Button) findViewById(R.id.finances_menu_button);
         _investmentsButton = (Button) findViewById(R.id.investments_menu_button);
@@ -44,8 +44,8 @@ public class MenuActivity extends AppCompatActivity {
         _logoutButton = (Button) findViewById(R.id.logout_menu_button);
         _welcomeView = (TextView) findViewById(R.id.welcome_view);
 
+        //Database Initialization
         _auth = FirebaseAuth.getInstance();
-
         String userId = _auth.getCurrentUser().getUid();
         FirebaseDatabase.getInstance().getReference().child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -64,7 +64,7 @@ public class MenuActivity extends AppCompatActivity {
         _quickAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent(MenuActivity.this, QuickAddActivity.class));
+                startActivity(new Intent(MenuActivity.this, AddExpenseActivity.class));
             }
         });
         _financesButton.setOnClickListener(new View.OnClickListener() {

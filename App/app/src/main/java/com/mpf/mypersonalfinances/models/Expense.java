@@ -6,6 +6,8 @@ package com.mpf.mypersonalfinances.models;
 
 public class Expense {
     public String category;
+    public String description;
+    public String id;
     public double value;
     public double oldValue;
 
@@ -13,8 +15,10 @@ public class Expense {
         //Default constructor for DataSnapshot.getValue(Expense.class)
     }
 
-    public Expense(String category, double value, double oldValue) {
+    public Expense(String category, String description, String id, double value, double oldValue) {
         this.category = category;
+        this.description = description;
+        this.id = id;
         this.value = value;
         this.oldValue = oldValue;
     }

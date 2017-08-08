@@ -5,14 +5,25 @@ package com.mpf.mypersonalfinances.models;
  */
 
 public enum ExpenseCategories {
-    Food,
-    Utility,
-    Clothing,
-    Transportation,
-    Medical,
-    Insurance,
-    HouseSupplies,
-    Health,
-    Education,
-    Fun
+    CLOTHING("Clothing"),
+    EDUCATION("Education"),
+    ENTERTAINMENT("Entertainment"),
+    FOOD("Food"),
+    HEALTH("Health"),
+    HOUSESUPPLIES("House Supplies"),
+    INSURANCE("Insurance"),
+    MEDICAL("Medical"),
+    TRANSPORTATION("Transportation"),
+    UTILITY("Utility");
+
+    private String categoryName;
+
+    ExpenseCategories(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    @Override
+    public String toString() {
+        return categoryName;
+    }
 }

@@ -10,8 +10,6 @@ import com.mpf.mypersonalfinances.features.MenuActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    //Constants
-
     //Declarations
     private FirebaseAuth _auth;
     private FirebaseAuth.AuthStateListener _authStateListener;
