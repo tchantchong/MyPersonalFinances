@@ -1,5 +1,6 @@
 package com.mpf.mypersonalfinances.features.finances;
 
+import android.app.DatePickerDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -18,9 +20,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.models.ExpenseCategories;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class AddExpenseActivity extends AppCompatActivity {
+
+    //Constants
+    private Calendar TODAY = Calendar.getInstance();
+    private DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
     //Database Declarations
     private FirebaseAuth _auth;
@@ -31,7 +41,10 @@ public class AddExpenseActivity extends AppCompatActivity {
     private Spinner _categorySpinner;
     private EditText _valueEditText;
     private Button _addExpenseButton;
+    private Button _dateButton;
     private String _selectedCategory;
+    private Date _selectedDate;
+    private DatePickerDialog _datePickerDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +63,26 @@ public class AddExpenseActivity extends AppCompatActivity {
         _categorySpinner = (Spinner) findViewById(R.id.add_expense_category_spinner);
         _valueEditText = (EditText) findViewById(R.id.add_expense_value_editText);
         _addExpenseButton = (Button) findViewById(R.id.add_expense_add_button);
+        _dateButton = (Button) findViewById(R.id.add_expense_date_button);
+        _selectedDate = Calendar.getInstance().getTime();
+
+        DatePickerDialog.OnDateSetListener datePickerListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                year -= 1900;
+                Date selectedDate = new Date(year, monthOfYear, dayOfMonth);
+                if (DATE_FORMAT.format(_selectedDate) != DATE_FORMAT.format(selectedDate)) {
+                    _selectedDate = selectedDate;
+                    if (IsTodaySelected(year, monthOfYear, dayOfMonth)) {
+                        _dateButton.setText("TODAY");
+                    }
+                    else {
+                        _dateButton.setText(DATE_FORMAT.format(_selectedDate));
+                    }
+                }
+            }
+        };
+        _datePickerDialog = new DatePickerDialog(this, datePickerListener, TODAY.get(Calendar.YEAR),TODAY.get(Calendar.MONTH),TODAY.get(Calendar.DAY_OF_MONTH));
 
         //Database Initialization
         _auth = FirebaseAuth.getInstance();
@@ -104,6 +137,13 @@ public class AddExpenseActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        _dateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _datePickerDialog.show();
+            }
+        });
     }
 
     private Boolean IsValueValid(String value_) {
@@ -125,5 +165,17 @@ public class AddExpenseActivity extends AppCompatActivity {
         return !TextUtils.isEmpty(_descriptionEditText.getText()) &&
                 !TextUtils.isEmpty(_selectedCategory) &&
                 !TextUtils.isEmpty(_valueEditText.getText());
+    }
+
+    private boolean IsTodaySelected(int year, int month, int day) {
+        if (year < 1900) {
+            year += 1900;
+        }
+        if (year == TODAY.get(Calendar.YEAR) &&
+            month == TODAY.get(Calendar.MONTH) &&
+            day == TODAY.get(Calendar.DAY_OF_MONTH)) {
+            return true;
+        }
+        return false;
     }
 }
