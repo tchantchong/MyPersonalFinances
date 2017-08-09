@@ -13,24 +13,39 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.models.Expense;
 import com.mpf.mypersonalfinances.models.Income;
+import com.mpf.mypersonalfinances.models.Period;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class FinancesActivity extends AppCompatActivity {
 
     //Database Declarations
-    private FirebaseAuth _auth;
-    private DatabaseReference _financesActualExpensesDatabaseReference;
-    private DatabaseReference _financesActualIncomesDatabaseReference;
+    private String _userId;
+    private DatabaseReference _currentExpensesDatabaseReference;
+    private DatabaseReference _currentIncomesDatabaseReference;
 
     //UI Declarations
-    private double _actualExpensessTotal;
+    private double _currentExpensessTotal;
     private double _actualIncomesTotal;
-    private TextView _actualExpensesTotalView;
+    private TextView _financesPeriodTextView;
+    private TextView _currentExpensesTotalView;
     private TextView _actualIncomesTotalView;
-    private Button _actualAddExpenseButton;
-    private Button _actualRemoveExpenseButton;
+    private Button _financesAddExpenseButton;
+    private Button _financesRemoveExpenseButton;
+
+    //Misc Declarations
+    private String _currentPeriod;
+    private boolean _periodInitialized = false;
+    private List<Expense> _expensesList = new ArrayList<Expense>();
+    private List<Income> _incomesList = new ArrayList<Income>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,22 +53,74 @@ public class FinancesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_finances);
 
         //UI Initializations
-        _actualExpensesTotalView = (TextView) findViewById(R.id.actual_expenses_total_text_view);
+        _financesPeriodTextView = (TextView) findViewById(R.id.finances_period_text_view);
+        _currentExpensesTotalView = (TextView) findViewById(R.id.current_expenses_total_text_view);
         _actualIncomesTotalView = (TextView) findViewById(R.id.actual_incomes_total_text_view);
-        _actualAddExpenseButton = (Button) findViewById(R.id.actual_add_expense_button);
-        _actualRemoveExpenseButton = (Button) findViewById(R.id.actual_remove_expense_button);
+        _financesAddExpenseButton = (Button) findViewById(R.id.finances_add_expense_button);
+        _financesRemoveExpenseButton = (Button) findViewById(R.id.finances_remove_expense_button);
+
+        //Misc Initializations
+        int month = Calendar.getInstance().get(Calendar.MONTH);
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        if (year < 1900) {
+            year += 1900;
+        }
+        _currentPeriod = String.format("%s/%s", month, year);
+        _financesPeriodTextView.setText(String.format("Period: %s", _currentPeriod));
 
         //DataBase Initializations
-        _auth = FirebaseAuth.getInstance();
-        String userId = _auth.getCurrentUser().getUid();
-        _financesActualExpensesDatabaseReference  = FirebaseDatabase.getInstance().getReference().child("users").child(userId).child("finances").child("actual").child("expenses");
-        _financesActualIncomesDatabaseReference  = FirebaseDatabase.getInstance().getReference().child("users").child(userId).child("finances").child("actual").child("incomes");
+        _userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Period period = dataSnapshot.getValue(Period.class);
+                _periodInitialized = period.initialized;
+            }
 
-        _financesActualExpensesDatabaseReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        if (!_periodInitialized) {
+            DatabaseReference monthlyDB = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child("monthly");
+            monthlyDB.child("incomes").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Income income = dataSnapshot.getValue(Income.class);
+                    _incomesList.add(income);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            monthlyDB.child("expenses").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Expense expense = dataSnapshot.getValue(Expense.class);
+                    _expensesList.add(expense);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("initialized").setValue(true);
+        }
+
+        _currentExpensesDatabaseReference  = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("expenses");
+        _currentIncomesDatabaseReference  = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("incomes");
+
+        _currentExpensesDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Expense expense =  dataSnapshot.getValue(Expense.class);
-                _actualExpensessTotal += expense.value;
+                _expensesList.add(expense);
+                _currentExpensessTotal += expense.value;
                 OnActualExpensesTotalChanged();
             }
 
@@ -61,8 +128,8 @@ public class FinancesActivity extends AppCompatActivity {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Expense expense = dataSnapshot.getValue(Expense.class);
                 if (expense.oldValue != expense.value && (expense.value != 0 || expense.oldValue != 0)) {
-                    _actualExpensessTotal -= expense.oldValue;
-                    _actualExpensessTotal += expense.value;
+                    _currentExpensessTotal -= expense.oldValue;
+                    _currentExpensessTotal += expense.value;
                     OnActualExpensesTotalChanged();
                 }
             }
@@ -70,7 +137,7 @@ public class FinancesActivity extends AppCompatActivity {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Expense expense = dataSnapshot.getValue(Expense.class);
-                _actualExpensessTotal -= 2*expense.value;
+                _currentExpensessTotal -= 2*expense.value;
                 OnActualExpensesTotalChanged();
             }
 
@@ -85,7 +152,7 @@ public class FinancesActivity extends AppCompatActivity {
             }
         });
 
-        _financesActualIncomesDatabaseReference.addChildEventListener(new ChildEventListener() {
+        _currentIncomesDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Income income = dataSnapshot.getValue(Income.class);
@@ -119,13 +186,13 @@ public class FinancesActivity extends AppCompatActivity {
             }
         });
 
-        _actualAddExpenseButton.setOnClickListener(new View.OnClickListener() {
+        _financesAddExpenseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(FinancesActivity.this, AddExpenseActivity.class));
             }
         });
-        _actualRemoveExpenseButton.setOnClickListener(new View.OnClickListener() {
+        _financesRemoveExpenseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(FinancesActivity.this, RemoveExpenseActivity.class));
@@ -134,7 +201,7 @@ public class FinancesActivity extends AppCompatActivity {
     }
 
     private void OnActualExpensesTotalChanged() {
-        _actualExpensesTotalView.setText(String.format("This month total expenses: %1$,.2f", _actualExpensessTotal));
+        _currentExpensesTotalView.setText(String.format("This month total expenses: %1$,.2f", _currentExpensessTotal));
     }
 
     private void OnActualIncomesTotalChanged() {

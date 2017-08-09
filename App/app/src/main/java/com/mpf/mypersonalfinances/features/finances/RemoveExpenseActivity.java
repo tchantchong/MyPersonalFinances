@@ -31,7 +31,7 @@ public class RemoveExpenseActivity extends AppCompatActivity {
     String SpinnerItemFormat = "%s / %s / %s";
 
     //Database Declarations
-    private FirebaseAuth _auth;
+    private String _userId;
     private DatabaseReference _userFinancesDatabase;
 
     //UI Declarations
@@ -60,9 +60,8 @@ public class RemoveExpenseActivity extends AppCompatActivity {
         _removeExpenseButton = (Button) findViewById(R.id.remove_expense_button);
 
         //Database Initialization
-        _auth = FirebaseAuth.getInstance();
-        String userId = _auth.getCurrentUser().getUid();
-        _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(userId).child("finances").child("actual").child("expenses");
+        _userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child("actual").child("expenses");
 
         //Misc Initialization
         _expensesList = new ArrayList<Expense>();

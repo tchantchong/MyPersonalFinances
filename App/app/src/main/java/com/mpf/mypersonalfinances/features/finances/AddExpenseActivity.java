@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mpf.mypersonalfinances.R;
+import com.mpf.mypersonalfinances.models.Expense;
 import com.mpf.mypersonalfinances.models.ExpenseCategories;
 
 import java.text.DateFormat;
@@ -25,15 +26,18 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddExpenseActivity extends AppCompatActivity {
 
     //Constants
     private Calendar TODAY = Calendar.getInstance();
     private DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+    private DateFormat PERIOD_FORMAT = new SimpleDateFormat("MM/yy");
 
     //Database Declarations
-    private FirebaseAuth _auth;
+    private String _userId;
     private DatabaseReference _userFinancesDatabase;
 
     //UI Declarations
@@ -45,6 +49,9 @@ public class AddExpenseActivity extends AppCompatActivity {
     private String _selectedCategory;
     private Date _selectedDate;
     private DatePickerDialog _datePickerDialog;
+
+    //Misc Declarations
+    private String _selectedPeriod;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,23 +76,27 @@ public class AddExpenseActivity extends AppCompatActivity {
         DatePickerDialog.OnDateSetListener datePickerListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                year -= 1900;
-                Date selectedDate = new Date(year, monthOfYear, dayOfMonth);
-                if (DATE_FORMAT.format(_selectedDate) != DATE_FORMAT.format(selectedDate)) {
-                    _selectedDate = selectedDate;
-                    if (IsTodaySelected(year, monthOfYear, dayOfMonth)) {
-                        _dateButton.setText("TODAY");
-                    }
-                    else {
-                        _dateButton.setText(DATE_FORMAT.format(_selectedDate));
-                    }
+            year -= 1900;
+            if (year < 1900) {
+                year += 1900;
+            }
+            Date selectedDate = new Date(year, monthOfYear, dayOfMonth);
+            if (DATE_FORMAT.format(_selectedDate) != DATE_FORMAT.format(selectedDate)) {
+                _selectedDate = selectedDate;
+                _selectedPeriod = PERIOD_FORMAT.format(_selectedDate);
+                if (IsTodaySelected(year, monthOfYear, dayOfMonth)) {
+                    _dateButton.setText("TODAY");
                 }
+                else {
+                    _dateButton.setText(DATE_FORMAT.format(_selectedDate));
+                }
+            }
             }
         };
         _datePickerDialog = new DatePickerDialog(this, datePickerListener, TODAY.get(Calendar.YEAR),TODAY.get(Calendar.MONTH),TODAY.get(Calendar.DAY_OF_MONTH));
 
         //Database Initialization
-        _auth = FirebaseAuth.getInstance();
+        _userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         ArrayAdapter<ExpenseCategories> adapter = new ArrayAdapter<ExpenseCategories>(this, android.R.layout.simple_list_item_1, ExpenseCategories.values());
         _categorySpinner.setAdapter(adapter);
@@ -124,15 +135,16 @@ public class AddExpenseActivity extends AppCompatActivity {
                     Toast.makeText(AddExpenseActivity.this, "Value cannot be 0 neither negative.", Toast.LENGTH_LONG).show();
                     return;
                 }
-                String userId = _auth.getCurrentUser().getUid();
-                _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(userId)
-                    .child("finances").child("actual").child("expenses").push();
+                _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
+                    .child("finances").child(_selectedPeriod).child("expenses").push();
                 String key = _userFinancesDatabase.getKey();
-                _userFinancesDatabase.child("id").setValue(key);
-                _userFinancesDatabase.child("description").setValue(_descriptionEditText.getText().toString().trim());
-                _userFinancesDatabase.child("category").setValue(_selectedCategory);
-                _userFinancesDatabase.child("value").setValue(doubleValue);
-                _userFinancesDatabase.child("oldValue").setValue(doubleValue);
+                String description = _descriptionEditText.getText().toString().trim();
+                Expense expense = new Expense(_selectedCategory, description, key, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
+                Map<String, Object> expenseValues = expense.toMap();
+
+                Map<String, Object> childUpdates = new HashMap<>();
+                childUpdates.put("/" + key, expenseValues);
+                _userFinancesDatabase.updateChildren(expenseValues);
                 Toast.makeText(AddExpenseActivity.this, "Expense successfully added.", Toast.LENGTH_LONG).show();
                 finish();
             }
@@ -146,7 +158,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         });
     }
 
-    private Boolean IsValueValid(String value_) {
+    private boolean IsValueValid(String value_) {
         int lastIndex = 0;
         String findStr = ".";
         int count = 0;
@@ -171,11 +183,8 @@ public class AddExpenseActivity extends AppCompatActivity {
         if (year < 1900) {
             year += 1900;
         }
-        if (year == TODAY.get(Calendar.YEAR) &&
-            month == TODAY.get(Calendar.MONTH) &&
-            day == TODAY.get(Calendar.DAY_OF_MONTH)) {
-            return true;
-        }
-        return false;
+        return year == TODAY.get(Calendar.YEAR) &&
+                month == TODAY.get(Calendar.MONTH) &&
+                day == TODAY.get(Calendar.DAY_OF_MONTH);
     }
 }

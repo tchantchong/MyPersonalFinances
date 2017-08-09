@@ -1,6 +1,8 @@
 package com.mpf.mypersonalfinances.models;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Lucas on 26/07/2017.
@@ -25,5 +27,17 @@ public class Expense {
         this.date = date;
         this.value = value;
         this.oldValue = oldValue;
+    }
+
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("category", category);
+        result.put("description", description);
+        result.put("id", id);
+        result.put("date", date);
+        result.put("value", value);
+        result.put("oldValue", oldValue);
+
+        return result;
     }
 }
