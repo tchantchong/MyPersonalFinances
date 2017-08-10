@@ -20,6 +20,8 @@ import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.features.MenuActivity;
 import com.mpf.mypersonalfinances.models.ExpenseCategories;
 
+import java.util.Calendar;
+
 public class RegisterActivity extends AppCompatActivity {
 
     //Database Declarations
@@ -77,26 +79,12 @@ public class RegisterActivity extends AppCompatActivity {
                 else {
                     String userId = _auth.getCurrentUser().getUid();
                     DatabaseReference currentUserDataBase = _database.child(userId);
-                    //User Data
+
+                    //Initializing Database Structure
                     currentUserDataBase.child("name").setValue(_nameField.getText().toString().trim());
-
-                    //Finances
-                    //DatabaseReference expenseToAdd = currentUserDataBase.child("finances").child("actual").child("expenses").push();
-                    //expenseToAdd.child("value").setValue(23);
-                    //expenseToAdd.child("category").setValue(ExpenseCategories.FOOD.toString());
-                    //DatabaseReference incomeToAdd = currentUserDataBase.child("finances").child("actual").child("incomes").push();
-                    //incomeToAdd.child("value").setValue(25);
-                    //incomeToAdd.child("name").setValue("MorganStanley");
-
-
-                    //currentUserDataBase.child("finances").child("actual").child("expenses").push().child("name").setValue("food");
-                    //currentUserDataBase.child("finances").child("actual").child("incomes").child("income1").child("name").setValue("Morgan");
-                    //currentUserDataBase.child("finances").child("actual").child("incomes").child("income1").child("value").setValue(2000);
-                    //currentUserDataBase.child("finances").child("history");
-
-                    //Investments
-                    //currentUserDataBase.child("investments").child("history");
-                    //currentUserDataBase.child("investments").child("total").setValue(0);
+                    currentUserDataBase.child("finances").child("monthly").child("initialized").setValue(true);
+                    currentUserDataBase.child("finances").child("monthly").child("initialized").setValue(true);
+                    currentUserDataBase.child("investments").child("initialized").setValue(true);
 
                     //Finally
                     Toast.makeText(RegisterActivity.this, String.format("Registration Completed. Logged in as %s",
