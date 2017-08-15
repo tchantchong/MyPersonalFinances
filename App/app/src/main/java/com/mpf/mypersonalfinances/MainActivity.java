@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
+
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.mpf.mypersonalfinances.auth.LoginActivity;
 import com.mpf.mypersonalfinances.features.MenuActivity;
 
@@ -13,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     //Declarations
     private FirebaseAuth _auth;
     private FirebaseAuth.AuthStateListener _authStateListener;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +31,10 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged (@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() == null) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    return;
                 }
                 startActivity(new Intent(MainActivity.this, MenuActivity.class));
+                return;
             }
         };
     }

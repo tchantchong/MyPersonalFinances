@@ -1,8 +1,8 @@
 package com.mpf.mypersonalfinances.features.finances;
 
 import android.app.DatePickerDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -20,16 +20,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.models.Expense;
 import com.mpf.mypersonalfinances.models.ExpenseCategories;
+import com.mpf.mypersonalfinances.models.Income;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
-public class AddExpenseActivity extends AppCompatActivity {
+public class AddIncomeActivity extends AppCompatActivity {
 
     //Constants
     private Calendar TODAY = Calendar.getInstance();
@@ -42,12 +42,10 @@ public class AddExpenseActivity extends AppCompatActivity {
 
     //UI Declarations
     private EditText _descriptionEditText;
-    private Spinner _categorySpinner;
     private EditText _valueEditText;
-    private Button _addExpenseButton;
+    private Button _addIncomeButton;
     private Button _dateButton;
     private Button _frequencyButton;
-    private String _selectedCategory;
     private Date _selectedDate;
     private DatePickerDialog _datePickerDialog;
 
@@ -58,7 +56,7 @@ public class AddExpenseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_expense);
+        setContentView(R.layout.activity_add_income);
 
         //Popup Initialization
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -68,12 +66,11 @@ public class AddExpenseActivity extends AppCompatActivity {
         getWindow().setLayout((int)(width*.8), (int)(height*.5));
 
         //UI Initialization
-        _descriptionEditText = (EditText) findViewById(R.id.add_expense_description_editText);
-        _categorySpinner = (Spinner) findViewById(R.id.add_expense_category_spinner);
-        _valueEditText = (EditText) findViewById(R.id.add_expense_value_editText);
-        _addExpenseButton = (Button) findViewById(R.id.add_expense_add_button);
-        _dateButton = (Button) findViewById(R.id.add_expense_date_button);
-        _frequencyButton = (Button) findViewById(R.id.add_expense_frequency_button);
+        _descriptionEditText = (EditText) findViewById(R.id.add_income_description_editText);
+        _valueEditText = (EditText) findViewById(R.id.add_income_value_editText);
+        _addIncomeButton = (Button) findViewById(R.id.add_income_add_button);
+        _dateButton = (Button) findViewById(R.id.add_income_date_button);
+        _frequencyButton = (Button) findViewById(R.id.add_income_frequency_button);
         _selectedDate = Calendar.getInstance().getTime();
 
         //Misc Initializations
@@ -119,33 +116,20 @@ public class AddExpenseActivity extends AppCompatActivity {
         //Database Initialization
         _userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        ArrayAdapter<ExpenseCategories> adapter = new ArrayAdapter<ExpenseCategories>(this, android.R.layout.simple_list_item_1, ExpenseCategories.values());
-        _categorySpinner.setAdapter(adapter);
-        _categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                _selectedCategory = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        _addExpenseButton.setOnClickListener(new View.OnClickListener() {
+        _addIncomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!IsFieldsFilled()) {
-                    Toast.makeText(AddExpenseActivity.this, "All fields must be filled", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddIncomeActivity.this, "All fields must be filled", Toast.LENGTH_LONG).show();
                     return;
                 }
                 if (_descriptionEditText.getText().toString().trim().length() > 15) {
-                    Toast.makeText(AddExpenseActivity.this, "Please make the description lower than 15 characters.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddIncomeActivity.this, "Please make the description lower than 15 characters.", Toast.LENGTH_LONG).show();
                     return;
                 }
                 String stringValue = _valueEditText.getText().toString().trim().replace(" ", "").replace(",", ".");
                 if (!IsValueValid(stringValue)) {
-                    Toast.makeText(AddExpenseActivity.this, "Please input a valid value.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddIncomeActivity.this, "Please input a valid value.", Toast.LENGTH_LONG).show();
                     return;
                 }
                 DecimalFormat decimalFormat = new DecimalFormat("#.00");
@@ -153,27 +137,27 @@ public class AddExpenseActivity extends AppCompatActivity {
                 stringValue = decimalFormat.format(doubleValue);
                 doubleValue = Double.parseDouble(stringValue);
                 if (doubleValue <= 0) {
-                    Toast.makeText(AddExpenseActivity.this, "Value cannot be 0 neither negative.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddIncomeActivity.this, "Value cannot be 0 neither negative.", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
-                    .child("finances").child(_selectedPeriod).child("expenses").push();
+                    .child("finances").child(_selectedPeriod).child("incomes").push();
                 String key = _userFinancesDatabase.getKey();
                 String description = _descriptionEditText.getText().toString().trim();
-                Expense expense = new Expense(_selectedCategory, description, key, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
-                Map<String, Object> expenseValues = expense.toMap();
-                _userFinancesDatabase.updateChildren(expenseValues);
+                Income income = new Income(description, key, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
+                Map<String, Object> incomeValues = income.toMap();
+                _userFinancesDatabase.updateChildren(incomeValues);
 
                 if (!_isOneTimeFrequency) {
                     _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
-                        .child("finances").child("monthly").child("expenses").push();
+                        .child("finances").child("monthly").child("incomes").push();
                     String monthlyKey = _userFinancesDatabase.getKey();
-                    Expense monthlyExpense = new Expense(_selectedCategory, description, monthlyKey, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
-                    Map<String, Object> monthlyExpenseValues = monthlyExpense.toMap();
-                    _userFinancesDatabase.updateChildren(monthlyExpenseValues);
+                    Income monthlyIncome = new Income(description, monthlyKey, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
+                    Map<String, Object> monthlyIncomeValues = monthlyIncome.toMap();
+                    _userFinancesDatabase.updateChildren(monthlyIncomeValues);
                 }
-                Toast.makeText(AddExpenseActivity.this, "Expense successfully added.", Toast.LENGTH_LONG).show();
+                Toast.makeText(AddIncomeActivity.this, "Income successfully added.", Toast.LENGTH_LONG).show();
                 finish();
             }
         });
@@ -203,7 +187,6 @@ public class AddExpenseActivity extends AppCompatActivity {
 
     private boolean IsFieldsFilled() {
         return !TextUtils.isEmpty(_descriptionEditText.getText()) &&
-                !TextUtils.isEmpty(_selectedCategory) &&
                 !TextUtils.isEmpty(_valueEditText.getText());
     }
 

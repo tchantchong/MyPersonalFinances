@@ -24,15 +24,15 @@
         <activity android:name=".auth.LoginActivity" />
         <activity android:name=".features.MenuActivity" />
         <activity android:name=".auth.RegisterActivity" />
-        <activity
-            android:name=".LoginActivity1"
-            android:label="@string/title_activity_login1" />
         <activity android:name=".features.finances.FinancesActivity" />
         <activity
             android:name=".features.finances.AddExpenseActivity"
             android:theme="@style/AppTheme.ManageExpenseOverlay" />
         <activity
             android:name=".features.finances.RemoveExpenseActivity"
+            android:theme="@style/AppTheme.ManageExpenseOverlay" />
+        <activity
+            android:name=".features.finances.AddIncomeActivity"
             android:theme="@style/AppTheme.ManageExpenseOverlay" />
     </application>
 

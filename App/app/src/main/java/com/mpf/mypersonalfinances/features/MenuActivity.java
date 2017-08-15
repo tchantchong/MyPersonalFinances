@@ -37,7 +37,7 @@ public class MenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
 
         //UI Initialization
-        _quickAddButton = (Button) findViewById(R.id.quick_add_button);
+        _quickAddButton = (Button) findViewById(R.id.quick_add_expense_button);
         _financesButton= (Button) findViewById(R.id.finances_menu_button);
         _investmentsButton = (Button) findViewById(R.id.investments_menu_button);
         _recommendationsButton = (Button) findViewById(R.id.recommendations_menu_button);

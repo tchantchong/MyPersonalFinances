@@ -23,6 +23,7 @@ import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.models.Expense;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
 
 public class RemoveExpenseActivity extends AppCompatActivity {
@@ -31,7 +32,7 @@ public class RemoveExpenseActivity extends AppCompatActivity {
     String SpinnerItemFormat = "%s / %s / %s";
 
     //Database Declarations
-    private FirebaseAuth _auth;
+    private String _userId;
     private DatabaseReference _userFinancesDatabase;
 
     //UI Declarations
@@ -42,6 +43,7 @@ public class RemoveExpenseActivity extends AppCompatActivity {
     private ArrayList<Expense> _expensesList;
     private ArrayList<String> _spinnerItemsList;
     private String _selectedExpenseId;
+    private String _currentPeriod;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,14 +61,22 @@ public class RemoveExpenseActivity extends AppCompatActivity {
         _expensesSpinner = (Spinner) findViewById(R.id.remove_expenses_spinner);
         _removeExpenseButton = (Button) findViewById(R.id.remove_expense_button);
 
-        //Database Initialization
-        _auth = FirebaseAuth.getInstance();
-        String userId = _auth.getCurrentUser().getUid();
-        _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(userId).child("finances").child("actual").child("expenses");
-
         //Misc Initialization
         _expensesList = new ArrayList<Expense>();
         _spinnerItemsList = new ArrayList<String>();
+        int month = Calendar.getInstance().get(Calendar.MONTH);
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        if (year < 1900) {
+            year += 1900;
+        }
+        _currentPeriod = String.format("%s%s", month, year - 2000);
+        if (_currentPeriod.length() < 4) {
+            _currentPeriod = String.format("0%s", _currentPeriod);
+        }
+
+        //Database Initialization
+        _userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("expenses");
 
         _userFinancesDatabase.addChildEventListener(new ChildEventListener() {
             @Override
