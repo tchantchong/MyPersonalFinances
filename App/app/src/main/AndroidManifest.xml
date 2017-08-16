@@ -27,13 +27,16 @@
         <activity android:name=".features.finances.FinancesActivity" />
         <activity
             android:name=".features.finances.AddExpenseActivity"
-            android:theme="@style/AppTheme.ManageExpenseOverlay" />
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
         <activity
             android:name=".features.finances.RemoveExpenseActivity"
-            android:theme="@style/AppTheme.ManageExpenseOverlay" />
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
         <activity
             android:name=".features.finances.AddIncomeActivity"
-            android:theme="@style/AppTheme.ManageExpenseOverlay" />
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
+        <activity
+            android:name=".features.finances.RemoveIncomeActivity"
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
     </application>
 
 </manifest>

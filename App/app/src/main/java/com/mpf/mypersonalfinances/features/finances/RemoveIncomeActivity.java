@@ -20,33 +20,34 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.models.Expense;
+import com.mpf.mypersonalfinances.models.Income;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class RemoveExpenseActivity extends AppCompatActivity {
+public class RemoveIncomeActivity extends AppCompatActivity {
 
     //Constants
-    public String SPINNER_ITEM_FORMAT = "%s / %s / %s";
+    private String SPINNER_ITEM_FORMAT = "%s / %s";
 
     //Database Declarations
     private String _userId;
     private DatabaseReference _userFinancesDatabase;
 
     //UI Declarations
-    private Spinner _expensesSpinner;
-    private Button _removeExpenseButton;
+    private Spinner _incomesSpinner;
+    private Button _removeIncomeButton;
 
     //Misc Declarations
-    private ArrayList<Expense> _expensesList;
+    private ArrayList<Income> _incomesList;
     private ArrayList<String> _spinnerItemsList;
-    private String _selectedExpenseId;
+    private String _selectedIncomeId;
     private String _currentPeriod;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_remove_expense);
+        setContentView(R.layout.activity_remove_income);
 
         //Popup Initialization
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -56,11 +57,11 @@ public class RemoveExpenseActivity extends AppCompatActivity {
         getWindow().setLayout((int)(width*.8), (int)(height*.5));
 
         //UI Initialization
-        _expensesSpinner = (Spinner) findViewById(R.id.remove_expenses_spinner);
-        _removeExpenseButton = (Button) findViewById(R.id.remove_expense_button);
+        _incomesSpinner = (Spinner) findViewById(R.id.remove_incomes_spinner);
+        _removeIncomeButton = (Button) findViewById(R.id.remove_income_button);
 
         //Misc Initialization
-        _expensesList = new ArrayList<Expense>();
+        _incomesList = new ArrayList<Income>();
         _spinnerItemsList = new ArrayList<String>();
         int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
         int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -74,18 +75,18 @@ public class RemoveExpenseActivity extends AppCompatActivity {
 
         //Database Initialization
         _userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("expenses");
+        _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("incomes");
 
         _userFinancesDatabase.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Expense expense = dataSnapshot.getValue(Expense.class);
-                _expensesList.add(expense);
-                String spinnerItem = String.format(SPINNER_ITEM_FORMAT, expense.category, expense.description, Double.toString(expense.value));
+                Income income = dataSnapshot.getValue(Income.class);
+                _incomesList.add(income);
+                String spinnerItem = String.format(SPINNER_ITEM_FORMAT, income.description, Double.toString(income.value));
                 _spinnerItemsList.add(spinnerItem);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(RemoveExpenseActivity.this, android.R.layout.simple_spinner_item, _spinnerItemsList);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(RemoveIncomeActivity.this, android.R.layout.simple_spinner_item, _spinnerItemsList);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                _expensesSpinner.setAdapter(adapter);
+                _incomesSpinner.setAdapter(adapter);
             }
 
             @Override
@@ -108,19 +109,17 @@ public class RemoveExpenseActivity extends AppCompatActivity {
 
             }
         });
-        _expensesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        _incomesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String spinnerItem = parent.getItemAtPosition(position).toString();
-                String category = spinnerItem.split("/")[0].trim();
-                String description  = spinnerItem.split("/")[1].trim();
-                String value = spinnerItem.split("/")[2].trim();
-                for (Expense expense : _expensesList) {
-                    if (expense.category.equals(category) &&
-                        expense.description.equals(description) &&
-                        Double.toString(expense.value).equals(value)) {
-                            _selectedExpenseId = expense.id;
-                            return;
+                String description  = spinnerItem.split("/")[0].trim();
+                String value = spinnerItem.split("/")[1].trim();
+                for (Income income : _incomesList) {
+                    if (income.description.equals(description) &&
+                            Double.toString(income.value).equals(value)) {
+                        _selectedIncomeId = income.id;
+                        return;
                     }
                 }
             }
@@ -131,11 +130,11 @@ public class RemoveExpenseActivity extends AppCompatActivity {
             }
         });
 
-        _removeExpenseButton.setOnClickListener(new View.OnClickListener() {
+        _removeIncomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Query expenseToBeRemoved = _userFinancesDatabase.child(_selectedExpenseId);
-                expenseToBeRemoved.addListenerForSingleValueEvent(new ValueEventListener() {
+                Query incomeToBeRemoved = _userFinancesDatabase.child(_selectedIncomeId);
+                incomeToBeRemoved .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for (DataSnapshot childrenDataSnapshot: dataSnapshot.getChildren()) {
@@ -148,7 +147,7 @@ public class RemoveExpenseActivity extends AppCompatActivity {
 
                     }
                 });
-                Toast.makeText(RemoveExpenseActivity.this, "Expense successfully removed.", Toast.LENGTH_LONG).show();
+                Toast.makeText(RemoveIncomeActivity.this, "Income successfully removed.", Toast.LENGTH_LONG).show();
                 finish();
             }
         });

@@ -77,7 +77,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         _selectedDate = Calendar.getInstance().getTime();
 
         //Misc Initializations
-        int month = Calendar.getInstance().get(Calendar.MONTH);
+        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
         int year = Calendar.getInstance().get(Calendar.YEAR);
         if (year < 1900) {
             year += 1900;
