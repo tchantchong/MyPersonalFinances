@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.models;
+package com.mpf.mypersonalfinances.models.finances;
 
 import java.util.HashMap;
 import java.util.Map;

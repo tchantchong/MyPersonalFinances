@@ -1,19 +1,15 @@
-package com.mpf.mypersonalfinances;
+package com.mpf.mypersonalfinances.controllers.main;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.mpf.mypersonalfinances.auth.LoginActivity;
-import com.mpf.mypersonalfinances.features.MenuActivity;
+import com.mpf.mypersonalfinances.R;
+import com.mpf.mypersonalfinances.controllers.auth.LoginActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,8 +25,16 @@ public class MainActivity extends AppCompatActivity {
 
         _auth = FirebaseAuth.getInstance();
         //FirebaseAuth.getInstance().signOut();
-        DatabaseReference aa = FirebaseDatabase.getInstance().getReference("message");
-        aa.setValue("Testing Connectivity");
+        /*DatabaseReference aa = FirebaseDatabase.getInstance().getReference("message");
+        aa.setValue("Testing Connectivity").addOnCompleteListener(this, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Saved", Toast.LENGTH_LONG);
+                }
+            }
+        });
+
         DatabaseReference bb = FirebaseDatabase.getInstance().getReference("connection");
         bb.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -44,19 +48,21 @@ public class MainActivity extends AppCompatActivity {
                 String e = databaseError.getMessage();
                 Toast.makeText(MainActivity.this, e, Toast.LENGTH_LONG).show();
             }
-        });
+        });*/
 
         _authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged (@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    return;
                 }
-                startActivity(new Intent(MainActivity.this, MenuActivity.class));
-                return;
+                else {
+                    startActivity(new Intent(MainActivity.this, MenuActivity.class));
+                }
             }
         };
+        FirebaseAuth.getInstance().addAuthStateListener(_authStateListener);
     }
 
     @Override

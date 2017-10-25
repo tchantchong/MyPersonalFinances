@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.features.finances;
+package com.mpf.mypersonalfinances.controllers.finances;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -6,21 +6,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.models.Expense;
-import com.mpf.mypersonalfinances.models.ExpenseCategories;
-import com.mpf.mypersonalfinances.models.Income;
+import com.mpf.mypersonalfinances.models.finances.Income;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;

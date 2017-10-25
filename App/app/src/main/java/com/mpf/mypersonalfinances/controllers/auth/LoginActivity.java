@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.auth;
+package com.mpf.mypersonalfinances.controllers.auth;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -14,7 +14,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mpf.mypersonalfinances.features.MenuActivity;
+import com.mpf.mypersonalfinances.controllers.main.MenuActivity;
 import com.mpf.mypersonalfinances.R;
 
 public class LoginActivity extends AppCompatActivity {

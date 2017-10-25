@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.features.finances;
+package com.mpf.mypersonalfinances.controllers.finances;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +15,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.models.Expense;
-import com.mpf.mypersonalfinances.models.Income;
+import com.mpf.mypersonalfinances.models.finances.Expense;
+import com.mpf.mypersonalfinances.models.finances.Income;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -84,6 +84,7 @@ public class FinancesActivity extends AppCompatActivity {
 
         InitializePeriod();
 
+        //UI Listener Initializations
         _financesAddExpenseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

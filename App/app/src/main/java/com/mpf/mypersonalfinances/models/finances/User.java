@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.models;
+package com.mpf.mypersonalfinances.models.finances;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
