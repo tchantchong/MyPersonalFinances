@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.features.finances;
+package com.mpf.mypersonalfinances.controllers.finances;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -20,16 +19,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.models.Expense;
+import com.mpf.mypersonalfinances.models.finances.Expense;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Map;
 
 public class RemoveExpenseActivity extends AppCompatActivity {
 
     //Constants
-    String SpinnerItemFormat = "%s / %s / %s";
+    public String SPINNER_ITEM_FORMAT = "%s / %s / %s";
 
     //Database Declarations
     private String _userId;
@@ -64,7 +62,7 @@ public class RemoveExpenseActivity extends AppCompatActivity {
         //Misc Initialization
         _expensesList = new ArrayList<Expense>();
         _spinnerItemsList = new ArrayList<String>();
-        int month = Calendar.getInstance().get(Calendar.MONTH);
+        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
         int year = Calendar.getInstance().get(Calendar.YEAR);
         if (year < 1900) {
             year += 1900;
@@ -83,7 +81,7 @@ public class RemoveExpenseActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Expense expense = dataSnapshot.getValue(Expense.class);
                 _expensesList.add(expense);
-                String spinnerItem = String.format(SpinnerItemFormat, expense.category, expense.description, Double.toString(expense.value));
+                String spinnerItem = String.format(SPINNER_ITEM_FORMAT, expense.category, expense.description, Double.toString(expense.value));
                 _spinnerItemsList.add(spinnerItem);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(RemoveExpenseActivity.this, android.R.layout.simple_spinner_item, _spinnerItemsList);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

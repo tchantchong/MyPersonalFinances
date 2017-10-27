@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.auth;
+package com.mpf.mypersonalfinances.controllers.auth;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -17,10 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.features.MenuActivity;
-import com.mpf.mypersonalfinances.models.ExpenseCategories;
-
-import java.util.Calendar;
+import com.mpf.mypersonalfinances.controllers.main.MenuActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -81,15 +78,24 @@ public class RegisterActivity extends AppCompatActivity {
                     DatabaseReference currentUserDataBase = _database.child(userId);
 
                     //Initializing Database Structure
-                    currentUserDataBase.child("name").setValue(_nameField.getText().toString().trim());
+                    /*currentUserDataBase.child("finances").child("monthly").child("initialized").setValue(true);
                     currentUserDataBase.child("finances").child("monthly").child("initialized").setValue(true);
-                    currentUserDataBase.child("finances").child("monthly").child("initialized").setValue(true);
-                    currentUserDataBase.child("investments").child("initialized").setValue(true);
+                    currentUserDataBase.child("investments").child("initialized").setValue(true);*/
+                    currentUserDataBase.child("name").setValue(_nameField.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {//Finally
+                                Toast.makeText(RegisterActivity.this, String.format("Registration Completed. Logged in as %s",
+                                    _nameField.getText().toString().split(" ")[0].trim()),Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(RegisterActivity.this, MenuActivity.class));
+                            }
+                            else {
+                                Toast.makeText(RegisterActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();;
+                            }
+                        }
+                    });
 
-                    //Finally
-                    Toast.makeText(RegisterActivity.this, String.format("Registration Completed. Logged in as %s",
-                        _nameField.getText().toString().split(" ")[0].trim()),Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(RegisterActivity.this, MenuActivity.class));
+
                 }
                 }
             });

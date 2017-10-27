@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.features.finances;
+package com.mpf.mypersonalfinances.controllers.finances;
 
 import android.app.DatePickerDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,15 +18,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.models.Expense;
-import com.mpf.mypersonalfinances.models.ExpenseCategories;
+import com.mpf.mypersonalfinances.models.finances.Expense;
+import com.mpf.mypersonalfinances.models.finances.ExpenseCategories;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 public class AddExpenseActivity extends AppCompatActivity {
@@ -77,7 +76,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         _selectedDate = Calendar.getInstance().getTime();
 
         //Misc Initializations
-        int month = Calendar.getInstance().get(Calendar.MONTH);
+        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
         int year = Calendar.getInstance().get(Calendar.YEAR);
         if (year < 1900) {
             year += 1900;

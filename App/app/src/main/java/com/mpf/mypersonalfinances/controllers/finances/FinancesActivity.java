@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.features.finances;
+package com.mpf.mypersonalfinances.controllers.finances;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -15,17 +15,24 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.models.Expense;
-import com.mpf.mypersonalfinances.models.Income;
+import com.mpf.mypersonalfinances.models.finances.Expense;
+import com.mpf.mypersonalfinances.models.finances.Income;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 public class FinancesActivity extends AppCompatActivity {
 
+    //Constants
+    private DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+
     //Database Declarations
     private String _userId;
+    private DatabaseReference _monthlyDB;
     private DatabaseReference _currentExpensesDatabaseReference;
     private DatabaseReference _currentIncomesDatabaseReference;
 
@@ -38,13 +45,10 @@ public class FinancesActivity extends AppCompatActivity {
     private Button _financesAddExpenseButton;
     private Button _financesRemoveExpenseButton;
     private Button _financesAddIncomeButton;
-    //private Button _financesRemoveIncomeButton;
+    private Button _financesRemoveIncomeButton;
 
     //Misc Declarations
     private String _currentPeriod;
-    private boolean _periodInitialized = false;
-    private boolean _monthlyExpensesInitialized = false;
-    private boolean _monthlyIncomesInitialized = false;
     private List<Expense> _expensesList = new ArrayList<Expense>();
     private List<Income> _incomesList = new ArrayList<Income>();
 
@@ -60,9 +64,10 @@ public class FinancesActivity extends AppCompatActivity {
         _financesAddExpenseButton = (Button) findViewById(R.id.finances_add_expense_button);
         _financesRemoveExpenseButton = (Button) findViewById(R.id.finances_remove_expense_button);
         _financesAddIncomeButton = (Button) findViewById(R.id.finances_add_income_button);
+        _financesRemoveIncomeButton = (Button) findViewById(R.id.finances_remove_income_button);
 
         //Misc Initializations
-        int month = Calendar.getInstance().get(Calendar.MONTH);
+        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
         int year = Calendar.getInstance().get(Calendar.YEAR);
         if (year < 1900) {
             year += 1900;
@@ -75,64 +80,134 @@ public class FinancesActivity extends AppCompatActivity {
 
         //DataBase Initializations
         _userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        _monthlyDB = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child("monthly");
 
-        //Initializing Period
+        InitializePeriod();
+
+        //UI Listener Initializations
+        _financesAddExpenseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FinancesActivity.this, AddExpenseActivity.class));
+            }
+        });
+        _financesRemoveExpenseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FinancesActivity.this, RemoveExpenseActivity.class));
+            }
+        });
+        _financesAddIncomeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FinancesActivity.this, AddIncomeActivity.class));
+            }
+        });
+        _financesRemoveIncomeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FinancesActivity.this, RemoveIncomeActivity.class));
+            }
+        });
+    }
+
+    private void InitializePeriod() {
         FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                _periodInitialized = dataSnapshot.hasChild(_currentPeriod);
+                if (!dataSnapshot.hasChild(_currentPeriod)) {
+                    _monthlyDB.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.hasChild("expenses")) {
+                                _monthlyDB.child("expenses").addChildEventListener(new ChildEventListener() {
+                                    @Override
+                                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                        Expense expense = dataSnapshot.getValue(Expense.class);
+                                        _expensesList.add(expense);
+                                        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
+                                                .child("finances").child(_currentPeriod).child("expenses").push();
+                                        Map<String, Object> expenseValues = expense.toMap();
+                                        mRef.updateChildren(expenseValues);
+                                    }
+
+                                    @Override
+                                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                    }
+
+                                    @Override
+                                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                    }
+
+                                    @Override
+                                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+
+                            if (dataSnapshot.hasChild("incomes")) {
+                                _monthlyDB.child("incomes").addChildEventListener(new ChildEventListener() {
+                                    @Override
+                                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                        Income income = dataSnapshot.getValue(Income.class);
+                                        _incomesList.add(income);
+                                        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
+                                                .child("finances").child(_currentPeriod).child("incomes").push();
+                                        Map<String, Object> incomeValues = income.toMap();
+                                        mRef.updateChildren(incomeValues);
+                                    }
+
+                                    @Override
+                                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                    }
+
+                                    @Override
+                                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                    }
+
+                                    @Override
+                                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                            InitializeDatabase();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                    FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("initialized").setValue(true);
+                }
+                else {
+                    InitializeDatabase();
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+    }
 
-        if (!_periodInitialized) {
-            DatabaseReference monthlyDB = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child("monthly");
-
-            monthlyDB.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    _monthlyExpensesInitialized = dataSnapshot.hasChild("expenses");
-                    _monthlyIncomesInitialized = dataSnapshot.hasChild("incomes");
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            if (_monthlyExpensesInitialized) {
-                monthlyDB.child("expenses").child("monthly").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Expense expense = dataSnapshot.getValue(Expense.class);
-                        _expensesList.add(expense);
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-            if (_monthlyIncomesInitialized) {
-                monthlyDB.child("incomes").child("monthly").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Income income = dataSnapshot.getValue(Income.class);
-                        _incomesList.add(income);
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-            FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("initialized").setValue(true);
-        }
-
+    private void InitializeDatabase() {
         _currentExpensesDatabaseReference  = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("expenses");
         _currentIncomesDatabaseReference  = FirebaseDatabase.getInstance().getReference().child("users").child(_userId).child("finances").child(_currentPeriod).child("incomes");
 
@@ -209,31 +284,6 @@ public class FinancesActivity extends AppCompatActivity {
 
             }
         });
-
-        _financesAddExpenseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(FinancesActivity.this, AddExpenseActivity.class));
-            }
-        });
-        _financesRemoveExpenseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(FinancesActivity.this, RemoveExpenseActivity.class));
-            }
-        });
-        _financesAddIncomeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(FinancesActivity.this, AddIncomeActivity.class));
-            }
-        });
-        //_financesRemoveIncomeButton.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
-                //startActivity(new Intent(FinancesActivity.this, RemoveIncomeActivity.class));
-        //    }
-        //});
     }
 
     private void OnCurrentExpensesTotalChanged() {

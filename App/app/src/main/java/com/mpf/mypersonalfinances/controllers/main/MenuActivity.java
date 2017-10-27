@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.features;
+package com.mpf.mypersonalfinances.controllers.main;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -10,13 +10,14 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.auth.LoginActivity;
-import com.mpf.mypersonalfinances.features.finances.AddExpenseActivity;
-import com.mpf.mypersonalfinances.features.finances.FinancesActivity;
-import com.mpf.mypersonalfinances.models.User;
+import com.mpf.mypersonalfinances.controllers.auth.LoginActivity;
+import com.mpf.mypersonalfinances.controllers.finances.AddExpenseActivity;
+import com.mpf.mypersonalfinances.controllers.finances.FinancesActivity;
+import com.mpf.mypersonalfinances.models.finances.User;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -47,7 +48,8 @@ public class MenuActivity extends AppCompatActivity {
         //Database Initialization
         _auth = FirebaseAuth.getInstance();
         String userId = _auth.getCurrentUser().getUid();
-        FirebaseDatabase.getInstance().getReference().child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference a = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
+        a.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -57,7 +59,7 @@ public class MenuActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                _welcomeView.setText("Timeout");
             }
         });
 

@@ -14,26 +14,34 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".controllers.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".auth.LoginActivity" />
-        <activity android:name=".features.MenuActivity" />
-        <activity android:name=".auth.RegisterActivity" />
-        <activity android:name=".features.finances.FinancesActivity" />
+        <activity android:name=".controllers.auth.LoginActivity" />
+        <activity android:name=".controllers.main.MenuActivity" />
+        <activity android:name=".controllers.auth.RegisterActivity" />
+        <activity android:name=".controllers.finances.FinancesActivity" />
         <activity
-            android:name=".features.finances.AddExpenseActivity"
-            android:theme="@style/AppTheme.ManageExpenseOverlay" />
+            android:name=".controllers.finances.AddExpenseActivity"
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
         <activity
-            android:name=".features.finances.RemoveExpenseActivity"
-            android:theme="@style/AppTheme.ManageExpenseOverlay" />
+            android:name=".controllers.finances.RemoveExpenseActivity"
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
         <activity
-            android:name=".features.finances.AddIncomeActivity"
-            android:theme="@style/AppTheme.ManageExpenseOverlay" />
+            android:name=".controllers.finances.AddIncomeActivity"
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
+        <activity
+            android:name=".controllers.finances.RemoveIncomeActivity"
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
+        <activity android:name=".controllers.investments.AddInvestmentActivity" />
+        <activity android:name=".controllers.investments.InvestmentsActivity" />
+        <activity
+            android:name=".controllers.investments.RemoveInvestmentActivity"
+            android:theme="@style/AppTheme.ManageEntryOverlay"/>
     </application>
 
 </manifest>

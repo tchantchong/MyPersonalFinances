@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.models;
+package com.mpf.mypersonalfinances.models.finances;
 
 /**
  * Created by Lucas on 26/07/2017.

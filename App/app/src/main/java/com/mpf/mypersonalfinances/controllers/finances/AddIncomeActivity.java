@@ -1,4 +1,4 @@
-package com.mpf.mypersonalfinances.features.finances;
+package com.mpf.mypersonalfinances.controllers.finances;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -6,21 +6,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mpf.mypersonalfinances.R;
-import com.mpf.mypersonalfinances.models.Expense;
-import com.mpf.mypersonalfinances.models.ExpenseCategories;
-import com.mpf.mypersonalfinances.models.Income;
+import com.mpf.mypersonalfinances.models.finances.Income;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -74,7 +69,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         _selectedDate = Calendar.getInstance().getTime();
 
         //Misc Initializations
-        int month = Calendar.getInstance().get(Calendar.MONTH);
+        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
         int year = Calendar.getInstance().get(Calendar.YEAR);
         if (year < 1900) {
             year += 1900;
@@ -119,46 +114,46 @@ public class AddIncomeActivity extends AppCompatActivity {
         _addIncomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!IsFieldsFilled()) {
-                    Toast.makeText(AddIncomeActivity.this, "All fields must be filled", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (_descriptionEditText.getText().toString().trim().length() > 15) {
-                    Toast.makeText(AddIncomeActivity.this, "Please make the description lower than 15 characters.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                String stringValue = _valueEditText.getText().toString().trim().replace(" ", "").replace(",", ".");
-                if (!IsValueValid(stringValue)) {
-                    Toast.makeText(AddIncomeActivity.this, "Please input a valid value.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                DecimalFormat decimalFormat = new DecimalFormat("#.00");
-                Double doubleValue = Double.parseDouble(stringValue);
-                stringValue = decimalFormat.format(doubleValue);
-                doubleValue = Double.parseDouble(stringValue);
-                if (doubleValue <= 0) {
-                    Toast.makeText(AddIncomeActivity.this, "Value cannot be 0 neither negative.", Toast.LENGTH_LONG).show();
-                    return;
-                }
+            if (!IsFieldsFilled()) {
+                Toast.makeText(AddIncomeActivity.this, "All fields must be filled", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (_descriptionEditText.getText().toString().trim().length() > 15) {
+                Toast.makeText(AddIncomeActivity.this, "Please make the description lower than 15 characters.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            String stringValue = _valueEditText.getText().toString().trim().replace(" ", "").replace(",", ".");
+            if (!IsValueValid(stringValue)) {
+                Toast.makeText(AddIncomeActivity.this, "Please input a valid value.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            DecimalFormat decimalFormat = new DecimalFormat("#.00");
+            Double doubleValue = Double.parseDouble(stringValue);
+            stringValue = decimalFormat.format(doubleValue);
+            doubleValue = Double.parseDouble(stringValue);
+            if (doubleValue <= 0) {
+                Toast.makeText(AddIncomeActivity.this, "Value cannot be 0 neither negative.", Toast.LENGTH_LONG).show();
+                return;
+            }
 
+            _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
+                .child("finances").child(_selectedPeriod).child("incomes").push();
+            String key = _userFinancesDatabase.getKey();
+            String description = _descriptionEditText.getText().toString().trim();
+            Income income = new Income(description, key, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
+            Map<String, Object> incomeValues = income.toMap();
+            _userFinancesDatabase.updateChildren(incomeValues);
+
+            if (!_isOneTimeFrequency) {
                 _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
-                    .child("finances").child(_selectedPeriod).child("incomes").push();
-                String key = _userFinancesDatabase.getKey();
-                String description = _descriptionEditText.getText().toString().trim();
-                Income income = new Income(description, key, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
-                Map<String, Object> incomeValues = income.toMap();
-                _userFinancesDatabase.updateChildren(incomeValues);
-
-                if (!_isOneTimeFrequency) {
-                    _userFinancesDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(_userId)
-                        .child("finances").child("monthly").child("incomes").push();
-                    String monthlyKey = _userFinancesDatabase.getKey();
-                    Income monthlyIncome = new Income(description, monthlyKey, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
-                    Map<String, Object> monthlyIncomeValues = monthlyIncome.toMap();
-                    _userFinancesDatabase.updateChildren(monthlyIncomeValues);
-                }
-                Toast.makeText(AddIncomeActivity.this, "Income successfully added.", Toast.LENGTH_LONG).show();
-                finish();
+                    .child("finances").child("monthly").child("incomes").push();
+                String monthlyKey = _userFinancesDatabase.getKey();
+                Income monthlyIncome = new Income(description, monthlyKey, DATE_FORMAT.format(_selectedDate), doubleValue, doubleValue);
+                Map<String, Object> monthlyIncomeValues = monthlyIncome.toMap();
+                _userFinancesDatabase.updateChildren(monthlyIncomeValues);
+            }
+            Toast.makeText(AddIncomeActivity.this, "Income successfully added.", Toast.LENGTH_LONG).show();
+            finish();
             }
         });
 
