@@ -1,5 +1,7 @@
 package com.mpf.mypersonalfinances.controllers.investments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -8,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -15,6 +18,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.models.investments.Investment;
 import com.mpf.mypersonalfinances.models.investments.InvestmentBase;
@@ -55,6 +60,32 @@ public class RemoveInvestmentActivity extends AppCompatActivity {
         _investmentsSpinner = (Spinner) findViewById(R.id.remove_investments_spinner);
         _removeInvestmentButton = (Button) findViewById(R.id.remove_investment_button);
 
+        //UI Listeners Initialization
+        _removeInvestmentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Query investmentToBeRemoved = _userInvestmentsDatabase.child(_selectedInvestmentId);
+                investmentToBeRemoved.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot childrenDataSnapshot: dataSnapshot.getChildren()) {
+                            childrenDataSnapshot.getRef().removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                Toast.makeText(RemoveInvestmentActivity.this, "Investment successfully removed.", Toast.LENGTH_LONG).show();
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("RemovedInvestmentKey", _selectedInvestmentId);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+            }
+        });
+
         //Misc Initialization
         _investmentsList = new ArrayList<InvestmentBase>();
         _spinnerItemsList = new ArrayList<String>();
@@ -68,7 +99,7 @@ public class RemoveInvestmentActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 InvestmentBase investment = dataSnapshot.getValue(InvestmentBase.class);
                 _investmentsList.add(investment);
-                String spinnerItem = String.format(SPINNER_ITEM_FORMAT, investment.name, Double.toString(investment.buyUnitPrice*investment.quantity));
+                String spinnerItem = String.format(SPINNER_ITEM_FORMAT, investment.name, Double.toString(investment.quantity), Double.toString(investment.buyUnitPrice));
                 _spinnerItemsList.add(spinnerItem);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(RemoveInvestmentActivity.this, android.R.layout.simple_spinner_item, _spinnerItemsList);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

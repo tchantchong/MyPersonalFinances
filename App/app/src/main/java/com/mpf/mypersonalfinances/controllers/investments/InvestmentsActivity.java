@@ -1,5 +1,6 @@
 package com.mpf.mypersonalfinances.controllers.investments;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.models.investments.InvestmentBase;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class InvestmentsActivity extends AppCompatActivity {
@@ -33,6 +35,7 @@ public class InvestmentsActivity extends AppCompatActivity {
 
     //Misc Declarations
     private List<InvestmentBase> _investmentsList = new ArrayList<InvestmentBase>();
+    private String _removedKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +51,14 @@ public class InvestmentsActivity extends AppCompatActivity {
         _investmentsAddInvestmentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(InvestmentsActivity.this, AddInvestmentActivity.class));
             }
         });
 
         _investmentsRemoveInvestmentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+                startActivityForResult(new Intent(InvestmentsActivity.this, RemoveInvestmentActivity.class), 1);
             }
         });
 
@@ -65,9 +68,11 @@ public class InvestmentsActivity extends AppCompatActivity {
         _investmentsDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                InvestmentBase investment = dataSnapshot.getValue(InvestmentBase.class);
-                _investmentsList.add(investment);
-                UpdateTotal();
+                if (dataSnapshot != null) {
+                    InvestmentBase investment = dataSnapshot.getValue(InvestmentBase.class);
+                    _investmentsList.add(investment);
+                    UpdateTotal();
+                }
             }
 
             @Override
@@ -77,9 +82,6 @@ public class InvestmentsActivity extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                InvestmentBase investment = dataSnapshot.getValue(InvestmentBase.class);
-                _investmentsList.remove(investment);
-                UpdateTotal();
             }
 
             @Override
@@ -92,6 +94,26 @@ public class InvestmentsActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                String key = data.getStringExtra("RemovedInvestmentKey");
+                if (key != null && !key.trim().isEmpty()) {
+                    Iterator<InvestmentBase> i = _investmentsList.iterator();
+                    while (i.hasNext()) {
+                        InvestmentBase investmentToRemove = i.next();
+                        if (investmentToRemove.id.equals(key)) {
+                            i.remove();
+                        }
+                    }
+                    UpdateTotal();
+                }
+            }
+        }
     }
 
     private void UpdateTotal() {

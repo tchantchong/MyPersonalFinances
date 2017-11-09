@@ -17,6 +17,7 @@ import com.mpf.mypersonalfinances.R;
 import com.mpf.mypersonalfinances.controllers.auth.LoginActivity;
 import com.mpf.mypersonalfinances.controllers.finances.AddExpenseActivity;
 import com.mpf.mypersonalfinances.controllers.finances.FinancesActivity;
+import com.mpf.mypersonalfinances.controllers.investments.InvestmentsActivity;
 import com.mpf.mypersonalfinances.models.finances.User;
 
 public class MenuActivity extends AppCompatActivity {
@@ -78,7 +79,7 @@ public class MenuActivity extends AppCompatActivity {
         _investmentsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent(MenuActivity.this, InvestmentsActivity.class));
+                startActivity(new Intent(MenuActivity.this, InvestmentsActivity.class));
             }
         });
         _recommendationsButton.setOnClickListener(new View.OnClickListener() {
