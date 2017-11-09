@@ -78,9 +78,6 @@ public class RegisterActivity extends AppCompatActivity {
                     DatabaseReference currentUserDataBase = _database.child(userId);
 
                     //Initializing Database Structure
-                    /*currentUserDataBase.child("finances").child("monthly").child("initialized").setValue(true);
-                    currentUserDataBase.child("finances").child("monthly").child("initialized").setValue(true);
-                    currentUserDataBase.child("investments").child("initialized").setValue(true);*/
                     currentUserDataBase.child("name").setValue(_nameField.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
