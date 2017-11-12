@@ -41,7 +41,8 @@
         <activity android:name=".controllers.investments.InvestmentsActivity" />
         <activity
             android:name=".controllers.investments.RemoveInvestmentActivity"
-            android:theme="@style/AppTheme.ManageEntryOverlay"/>
+            android:theme="@style/AppTheme.ManageEntryOverlay" />
+        <activity android:name=".controllers.recommendations.RecommendationsActivity"></activity>
     </application>
 
 </manifest>

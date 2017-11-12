@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.mpf.mypersonalfinances.controllers.recommendations.RecommendationsActivity"
+    tools:layout_editor_absoluteY="25dp"
+    tools:layout_editor_absoluteX="0dp">
+
+    <EditText
+        android:id="@+id/recommendations_ticker_symbol_editText"
+        android:layout_width="67dp"
+        android:layout_height="43dp"
+        android:ems="10"
+        android:hint="Symbol"
+        android:inputType="textPersonName"
+        android:textAlignment="center"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/recommendations_search_button"
+        tools:layout_constraintBaseline_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/recommendations_search_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/recommendations_ticker_symbol_editText" />
+
+    <TextView
+        android:id="@+id/recommendations_ticker_not_found_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="2dp"
+        android:text="This Ticker Symbol is not available in our Database yet."
+        app:layout_constraintRight_toRightOf="@+id/recommendations_search_button"
+        app:layout_constraintTop_toBottomOf="@+id/recommendations_search_button"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1" />
+
+    <TableLayout
+        android:id="@+id/recommendations_analyses_table"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="14dp"
+        app:layout_constraintTop_toBottomOf="@+id/recommendations_ticker_not_found_text_view"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+    </TableLayout>
+
+</android.support.constraint.ConstraintLayout>
