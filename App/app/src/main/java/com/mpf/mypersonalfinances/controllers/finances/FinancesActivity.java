@@ -3,8 +3,11 @@ package com.mpf.mypersonalfinances.controllers.finances;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,9 +22,11 @@ import com.mpf.mypersonalfinances.models.finances.Expense;
 import com.mpf.mypersonalfinances.models.finances.Income;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +34,7 @@ public class FinancesActivity extends AppCompatActivity {
 
     //Constants
     private DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+    private DecimalFormat PRICE_FORMAT = new DecimalFormat("#.00");
 
     //Database Declarations
     private String _userId;
@@ -46,6 +52,7 @@ public class FinancesActivity extends AppCompatActivity {
     private Button _financesRemoveExpenseButton;
     private Button _financesAddIncomeButton;
     private Button _financesRemoveIncomeButton;
+    private TableLayout _financesTableLayout;
 
     //Misc Declarations
     private String _currentPeriod;
@@ -65,6 +72,7 @@ public class FinancesActivity extends AppCompatActivity {
         _financesRemoveExpenseButton = (Button) findViewById(R.id.finances_remove_expense_button);
         _financesAddIncomeButton = (Button) findViewById(R.id.finances_add_income_button);
         _financesRemoveIncomeButton = (Button) findViewById(R.id.finances_remove_income_button);
+        _financesTableLayout = (TableLayout) findViewById(R.id.finances_table);
 
         //Misc Initializations
         int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
@@ -216,25 +224,27 @@ public class FinancesActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Expense expense =  dataSnapshot.getValue(Expense.class);
                 _expensesList.add(expense);
-                _currentExpensesTotal += expense.value;
-                OnCurrentExpensesTotalChanged();
+                OnExpensesListChanged();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Expense expense = dataSnapshot.getValue(Expense.class);
-                if (expense.oldValue != expense.value && (expense.value != 0 || expense.oldValue != 0)) {
-                    _currentExpensesTotal -= expense.oldValue;
-                    _currentExpensesTotal += expense.value;
-                    OnCurrentExpensesTotalChanged();
-                }
+
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Expense expense = dataSnapshot.getValue(Expense.class);
-                _currentExpensesTotal -= 2*expense.value;
-                OnCurrentExpensesTotalChanged();
+                String key = dataSnapshot.getKey();
+                if (key != null && !key.trim().isEmpty()) {
+                    Iterator<Expense> i = _expensesList.iterator();
+                    while (i.hasNext()) {
+                        Expense expenseIterator = i.next();
+                        if (expenseIterator.id.equals(key)) {
+                            i.remove();
+                            OnExpensesListChanged();
+                        }
+                    }
+                }
             }
 
             @Override
@@ -253,25 +263,26 @@ public class FinancesActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Income income = dataSnapshot.getValue(Income.class);
                 _incomesList.add(income);
-                _currentIncomesTotal += income.value;
-                OnCurrentIncomesTotalChanged();
+                OnIncomesListChanged();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Income income = dataSnapshot.getValue(Income.class);
-                if (income.oldValue != income.value && (income.value != 0 || income.oldValue != 0)) {
-                    _currentIncomesTotal -= income.oldValue;
-                    _currentIncomesTotal += income.value;
-                    OnCurrentIncomesTotalChanged();
-                }
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Income income = dataSnapshot.getValue(Income.class);
-                _currentIncomesTotal -= income.value;
-                OnCurrentIncomesTotalChanged();
+                String key = dataSnapshot.getKey();
+                if (key != null && !key.trim().isEmpty()) {
+                    Iterator<Income> i = _incomesList.iterator();
+                    while (i.hasNext()) {
+                        Income incomeIterator = i.next();
+                        if (incomeIterator.id.equals(key)) {
+                            i.remove();
+                            OnIncomesListChanged();
+                        }
+                    }
+                }
             }
 
             @Override
@@ -286,11 +297,70 @@ public class FinancesActivity extends AppCompatActivity {
         });
     }
 
-    private void OnCurrentExpensesTotalChanged() {
+    private void OnExpensesListChanged() {
+        _currentExpensesTotal = 0;
+        for (Expense expense : _expensesList) {
+            _currentExpensesTotal += expense.value;
+        }
         _currentExpensesTotalView.setText(String.format("This month total expenses: %1$,.2f", _currentExpensesTotal));
+        CreateFinancesTable();
     }
 
-    private void OnCurrentIncomesTotalChanged() {
+    private void OnIncomesListChanged() {
+        _currentIncomesTotal = 0;
+        for (Income income : _incomesList) {
+            _currentIncomesTotal += income.value;
+        }
         _currentIncomesTotalView.setText(String.format("This month total incomes: %1$,.2f", _currentIncomesTotal));
+        CreateFinancesTable();
+    }
+
+    private void CreateFinancesTable() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = displayMetrics.widthPixels;
+        TableRow.LayoutParams headerParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+        TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
+
+        _financesTableLayout.removeAllViews();
+
+        //Expenses
+        TableRow expenseHeader = new TableRow(this);
+        expenseHeader.setLayoutParams(headerParams);
+        TextView expenseHeaderView = new TextView(this);
+        expenseHeaderView.setText(_expensesList.size() + " Expenses this month");
+        expenseHeader.addView(expenseHeaderView);
+        _financesTableLayout.addView(expenseHeader);
+
+        for (Expense expense : _expensesList) {
+            TableRow expenseRow = new TableRow(this);
+            expenseRow.setLayoutParams(rowParams);
+            TextView expenseView = new TextView(this);
+            expenseView.setText("\n - " + expense.description
+                                + " - " + expense.category
+                                + " - " + PRICE_FORMAT.format(expense.value));
+            expenseView.setWidth((int)(width*.9));
+            expenseRow.addView(expenseView);
+            _financesTableLayout.addView(expenseRow);
+        }
+
+        //Incomes
+        TableRow incomeHeader = new TableRow(this);
+        incomeHeader.setLayoutParams(headerParams);
+        TextView incomeHeaderView = new TextView(this);
+        incomeHeaderView.setText("\n" + _incomesList.size() + " Incomes this month");
+        incomeHeader.addView(incomeHeaderView);
+        _financesTableLayout.addView(incomeHeader);
+
+        for (Income income : _incomesList) {
+            TableRow incomeRow = new TableRow(this);
+            incomeRow.setLayoutParams(rowParams);
+            TextView incomeView = new TextView(this);
+            incomeView.setText("\n - " + income.description
+                               + " - " + PRICE_FORMAT.format(income.value));
+            incomeView.setWidth((int)(width*.9));
+            incomeRow.addView(incomeView);
+            _financesTableLayout.addView(incomeRow);
+        }
     }
 }

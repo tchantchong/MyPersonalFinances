@@ -171,17 +171,20 @@ public class AddInvestmentActivity extends AppCompatActivity {
                 stringQuantity = decimalFormat.format(doubleQuantity);
                 doubleQuantity = Double.parseDouble(stringQuantity);
                 if (doubleQuantity <= 0) {
-                    Toast.makeText(AddInvestmentActivity.this, "Quantity cannot be 0 neither negative.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddInvestmentActivity.this, "Quantity cannot be neither 0 or negative.", Toast.LENGTH_LONG).show();
                     return;
                 }
-                String stringYield = _yieldEditText.getText().toString().trim().replace(" ", "").replace(",", ".");
-                if (!IsValueValid(stringYield)) {
-                    Toast.makeText(AddInvestmentActivity.this, "Please input a valid Yield.", Toast.LENGTH_LONG).show();
-                    return;
+                Double doubleYield = 0.0;
+                if (!_yieldEditText.getText().toString().isEmpty()) {
+                    String stringYield = _yieldEditText.getText().toString().trim().replace(" ", "").replace(",", ".");
+                    if (!IsValueValid(stringYield)) {
+                        Toast.makeText(AddInvestmentActivity.this, "Please input a valid Yield.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    stringYield = decimalFormat.format(doubleYield);
+                    doubleYield = Double.parseDouble(stringYield);
                 }
-                Double doubleYield = Double.parseDouble(stringYield);
-                stringYield = decimalFormat.format(doubleYield);
-                doubleYield = Double.parseDouble(stringYield);
+
                 if (doubleQuantity <= 0) {
                     Toast.makeText(AddInvestmentActivity.this, "Yield cannot be 0 neither negative.", Toast.LENGTH_LONG).show();
                     return;

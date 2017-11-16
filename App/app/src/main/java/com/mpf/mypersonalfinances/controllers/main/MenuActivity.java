@@ -26,7 +26,7 @@ public class MenuActivity extends AppCompatActivity {
     //Database Declarations
     private FirebaseAuth _auth;
 
-    //Declarations
+    //UI Declarations
     private Button _quickAddButton;
     private Button _financesButton;
     private Button _investmentsButton;

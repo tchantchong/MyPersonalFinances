@@ -26,7 +26,6 @@ public class Expense {
         this.id = id;
         this.date = date;
         this.value = value;
-        this.oldValue = oldValue;
     }
 
     public Map<String, Object> toMap() {
@@ -36,7 +35,6 @@ public class Expense {
         result.put("id", id);
         result.put("date", date);
         result.put("value", value);
-        result.put("oldValue", oldValue);
 
         return result;
     }
