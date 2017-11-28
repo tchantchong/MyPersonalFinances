@@ -31,15 +31,15 @@
         android:layout_height="wrap_content"
         android:text="Actual Expenses Total"
         android:textAlignment="center"
+        tools:layout_constraintTop_creator="1"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toTopOf="@+id/finances_add_expense_button"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="84dp"
         tools:layout_constraintLeft_creator="1"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/current_incomes_total_text_view"
@@ -52,7 +52,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="3dp"
         app:layout_constraintTop_toBottomOf="@+id/current_expenses_total_text_view"
         tools:layout_constraintLeft_creator="1"
         app:layout_constraintLeft_toLeftOf="parent" />
@@ -62,21 +62,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add Expense"
+        tools:layout_constraintTop_creator="1"
         android:layout_marginStart="8dp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/finances_remove_expense_button"
-        tools:layout_constraintBaseline_creator="1"
+        android:layout_marginTop="16dp"
         tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toLeftOf="@+id/current_incomes_total_text_view" />
+        app:layout_constraintLeft_toLeftOf="@+id/current_incomes_total_text_view"
+        app:layout_constraintTop_toTopOf="@+id/current_incomes_total_text_view" />
 
     <Button
         android:id="@+id/finances_remove_expense_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Remove Expense"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toTopOf="@+id/finances_add_income_button"
-        tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toRightOf="@+id/finances_add_expense_button" />
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintRight_toRightOf="@+id/current_incomes_total_text_view"
+        app:layout_constraintTop_toBottomOf="@+id/current_incomes_total_text_view" />
 
     <Button
         android:id="@+id/finances_add_income_button"
@@ -84,19 +86,38 @@
         android:layout_height="wrap_content"
         android:text="Add Income"
         tools:layout_constraintTop_creator="1"
-        android:layout_marginTop="168dp"
+        app:layout_constraintTop_toBottomOf="@+id/finances_add_expense_button"
         tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toLeftOf="@+id/finances_add_expense_button"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintLeft_toLeftOf="@+id/finances_add_expense_button" />
 
     <Button
         android:id="@+id/finances_remove_income_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Remove Income"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toTopOf="@+id/finances_table"
+        app:layout_constraintRight_toRightOf="@+id/finances_remove_expense_button"
+        android:layout_marginBottom="17dp" />
+
+    <TableLayout
+        android:id="@+id/finances_table"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         tools:layout_constraintTop_creator="1"
-        app:layout_constraintTop_toBottomOf="@+id/finances_add_expense_button"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        android:layout_marginStart="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="14dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="17dp"
+        app:layout_constraintTop_toBottomOf="@+id/finances_add_income_button"
         tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toRightOf="@+id/finances_add_expense_button" />
+        android:layout_marginBottom="16dp"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+    </TableLayout>
 
 </android.support.constraint.ConstraintLayout>
